@@ -15,6 +15,7 @@ cudnn_windows
 
 # Cache and temporary files
 .cache
+.docker-build
 .DS_Store
 
 # Scripts and executables
@@ -49,6 +50,7 @@ outputs
 dataset/**
 !dataset/**/
 !dataset/**/.gitkeep
+!dataset/**/*.zip
 models
 data
 config.toml

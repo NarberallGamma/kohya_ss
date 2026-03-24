@@ -1,38 +1,41 @@
+# Kohya_ss в Docker — окружение под ai_forks (рядом с stable-diffusion-webui-docker).
+# Модели: общая папка WebUI (чекпоинты + LoRA). Датасеты: ./dataset (например dataset/10_texas).
+#
+# Запуск: ./run.sh help
+
+name: kohya-docker
+
 services:
   kohya-ss-gui:
     container_name: kohya-ss-gui
-    image: ghcr.io/bmaltais/kohya-ss-gui:latest
-    user: 1000:0
+    image: kohya-ss-gui:local
+    user: "1000:0"
     build:
       context: .
       args:
         - UID=1000
-      cache_from:
-        - ghcr.io/bmaltais/kohya-ss-gui:cache
-      cache_to:
-        - type=inline
     ports:
-      - 7860:7860
+      - "${KOHYA_PORT:-7861}:7860"
     environment:
-      SAFETENSORS_FAST_GPU: 1
+      SAFETENSORS_FAST_GPU: "1"
       TENSORBOARD_PORT: ${TENSORBOARD_PORT:-6006}
     tmpfs:
       - /tmp
     volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./models:/app/models
-      - ./dataset:/dataset
-      - ./dataset/images:/app/data
-      - ./dataset/logs:/app/logs
-      - ./dataset/outputs:/app/outputs
-      - ./dataset/regularization:/app/regularization
-      - ./models:/app/models
-      - ./.cache/config:/app/config
-      - ./.cache/user:/home/1000/.cache
-      - ./.cache/triton:/home/1000/.triton
-      - ./.cache/nv:/home/1000/.nv
-      - ./.cache/keras:/home/1000/.keras
-      - ./.cache/config:/home/1000/.config # For backward compatibility
+      # Чекпоинты и LoRA — та же директория, что у AUTOMATIC1111 (путь из .env)
+      - ${MODELS_HOST_PATH:-../stable-diffusion-webui-docker/data/models}:/app/models:rw
+      # Датасеты обучения (подпапки 10_name и т.д.)
+      - ./dataset:/dataset:rw
+      - ./dataset:/app/data:rw
+      - ./dataset/logs:/app/logs:rw
+      - ./dataset/outputs:/app/outputs:rw
+      - ./dataset/regularization:/app/regularization:rw
+      - ./.cache/config:/app/config:rw
+      - ./.cache/user:/home/1000/.cache:rw
+      - ./.cache/triton:/home/1000/.triton:rw
+      - ./.cache/nv:/home/1000/.nv:rw
+      - ./.cache/keras:/home/1000/.keras:rw
+      - ./.cache/config:/home/1000/.config:rw
     deploy:
       resources:
         reservations:
@@ -42,13 +45,13 @@ services:
               device_ids: ["all"]
 
   tensorboard:
-    container_name: tensorboard
+    container_name: kohya-tensorboard
     image: tensorflow/tensorflow:latest-gpu
+    profiles: ["tensorboard"]
     ports:
-      # !Please change the port in .env file
-      - ${TENSORBOARD_PORT:-6006}:6006
+      - "${TENSORBOARD_PORT:-6006}:6006"
     volumes:
-      - ./dataset/logs:/app/logs
+      - ./dataset/logs:/app/logs:rw
     command: tensorboard --logdir=/app/logs --bind_all
     deploy:
       resources:
