@@ -50,7 +50,6 @@ outputs
 dataset/**
 !dataset/**/
 !dataset/**/.gitkeep
-!dataset/**/*.zip
 models
 data
 config.toml
