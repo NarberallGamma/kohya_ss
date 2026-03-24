@@ -36,6 +36,16 @@ compose() {
   docker compose "$@"
 }
 
+# Kohya зависит от git submodule kohya-ss/sd-scripts (pyproject внутри sd-scripts).
+ensure_sd_scripts() {
+  if [[ ! -f "${SCRIPT_DIR}/sd-scripts/pyproject.toml" ]] && [[ ! -f "${SCRIPT_DIR}/sd-scripts/setup.py" ]]; then
+    echo "Ошибка: sd-scripts пуст или не клонирован." >&2
+    echo "Выполните из корня репозитория:" >&2
+    echo "  git submodule update --init --recursive" >&2
+    exit 1
+  fi
+}
+
 show_help() {
   cat <<'EOF'
 Использование: ./run.sh <команда>
@@ -66,6 +76,9 @@ UI после up:
   Kohya: http://localhost:7861   (если KOHYA_PORT=7861)
   TensorBoard: http://localhost:6006  (после up-all)
 
+Перед первым build (если клонировали без submodules):
+  git submodule update --init --recursive
+
 Примеры:
   ./run.sh build && ./run.sh up
   ./run.sh up-fg
@@ -80,10 +93,12 @@ case "$CMD" in
     show_help
     ;;
   build)
+    ensure_sd_scripts
     echo "Сборка с DOCKER_CONFIG=$DOCKER_CONFIG_DIR"
     compose build
     ;;
   build-nc)
+    ensure_sd_scripts
     echo "Сборка --no-cache..."
     compose build --no-cache
     ;;
@@ -94,6 +109,7 @@ case "$CMD" in
     echo "(порт из .env: KOHYA_PORT)"
     ;;
   up-fg)
+    ensure_sd_scripts
     compose up --build
     ;;
   up-all)
