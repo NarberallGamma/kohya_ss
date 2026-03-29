@@ -70,6 +70,7 @@ show_help() {
 Пути (относительно этого репозитория):
   Модели WebUI:  MODELS_HOST_PATH в .env (по умолчанию ../stable-diffusion-webui-docker/data/models)
   Датасет:       ./dataset (например ./dataset/10_texas)
+  Пресеты GUI:   ./presets  → /app/presets (user_presets/*.json для вкладки LoRA)
   Вывод LoRA:    ./dataset/outputs  → монтируется в /app/outputs; в GUI можно указать путь к Lora внутри /app/models
 
 UI после up:

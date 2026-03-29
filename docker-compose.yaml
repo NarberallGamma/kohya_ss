@@ -22,9 +22,11 @@ services:
     tmpfs:
       - /tmp
     volumes:
+      # Пресеты с хоста (presets/lora/user_presets/*.json) → /app/presets в контейнере
+      - ./presets:/app/presets:rw
       # Чекпоинты и LoRA — та же директория, что у AUTOMATIC1111 (путь из .env)
       - ${MODELS_HOST_PATH:-../stable-diffusion-webui-docker/data/models}:/app/models:rw
-      # Датасеты обучения (подпапки 10_name и т.д.)
+      # Датасеты: весь ./dataset → /app/data (например /app/data/5_texas_dataset/5_texas — N_имя = repeats)
       - ./dataset:/dataset:rw
       - ./dataset:/app/data:rw
       - ./dataset/logs:/app/logs:rw
