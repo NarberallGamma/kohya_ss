@@ -16,6 +16,7 @@ cudnn_windows
 # Cache and temporary files
 .cache
 .DS_Store
+.docker-build
 
 # Scripts and executables
 locon
